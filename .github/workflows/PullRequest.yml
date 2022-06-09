@@ -1,0 +1,43 @@
+name: Pull Request dummy app
+
+on:
+  pull_request:
+
+env:
+  DOTNET_NOLOGO: true
+
+jobs:
+
+
+  build_then_deploy_to_dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build version prefix/suffix
+        run: |
+          echo "VERSION_PREFIX=${{ github.run_number }}.0.0" >> $GITHUB_ENV
+          echo "VERSION_SUFFIX=beta" >> $GITHUB_ENV
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+
+      - run: dotnet restore --verbosity minimal
+
+      - run: dotnet build --configuration Release --output ./output -p:VersionPrefix=$VERSION_PREFIX --version-suffix $VERSION_SUFFIX
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: AzureFunction.${{ env.VERSION_PREFIX }}-${{ env.VERSION_SUFFIX }}
+          path: ./output
+          
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: listings-externalfeeds-ause-dev-func
+          package: './output'
+          publish-profile: ${{ secrets.AZURE_PUBLISHPROFILE_DEV }}
