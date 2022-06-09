@@ -1,6 +1,7 @@
-name: Pull Request dummy app
+name: Push or PR.
 
 on:
+  push:
   pull_request:
 
 env:
