@@ -39,6 +39,6 @@ jobs:
         uses: Azure/functions-action@v1
         id: fa
         with:
-          app-name: listings-externalfeeds-ause-dev-func
+          app-name: ms-support-with-kosta
           package: './output'
           publish-profile: ${{ secrets.AZURE_PUBLISHPROFILE_DEV }}
